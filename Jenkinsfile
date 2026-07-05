@@ -9,7 +9,7 @@ pipeline {
 
         stage('Checkout') {
             steps {
-                git 'https://github.com/oviyamuralidharan/simple-python-app.git'
+                git branch: 'main', url: 'https://github.com/oviyamuralidharan/simple-python-app.git'
             }
         }
 
@@ -58,10 +58,10 @@ pipeline {
 
     post {
         success {
-            echo 'Pipeline completed successfully!'
+            echo 'Pipeline SUCCESS ✔'
         }
         failure {
-            echo 'Pipeline failed. Check logs.'
+            echo 'Pipeline FAILED ❌ Check logs'
         }
     }
 }
