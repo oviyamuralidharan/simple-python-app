@@ -1,10 +1,6 @@
 pipeline {
     agent any
 
-    tools {
-        sonarRunner 'sonar-scanner'
-    }
-
     stages {
 
         stage('Checkout') {
@@ -28,7 +24,7 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('sonarserver') {
-                    bat 'sonar-scanner -Dsonar.login=%SONAR_TOKEN%'
+                    bat 'sonar-scanner'
                 }
             }
         }
@@ -36,10 +32,10 @@ pipeline {
 
     post {
         success {
-            echo 'PIPELINE SUCCESS ✅'
+            echo "PIPELINE SUCCESS ✅"
         }
         failure {
-            echo 'PIPELINE FAILED ❌ Check logs'
+            echo "PIPELINE FAILED ❌ Check logs"
         }
     }
 }
