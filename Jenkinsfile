@@ -4,14 +4,14 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                bat 'python --version'
-                bat 'python app.py'
+                bat 'py --version'
+                bat 'py app.py'
             }
         }
 
         stage('Test') {
             steps {
-                bat 'python test.py'
+                bat 'py test.py'
             }
         }
     }
