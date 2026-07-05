@@ -28,7 +28,9 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('sonarserver') {
-                    bat 'sonar-scanner'
+                    withEnv(["PATH+SONAR=${tool 'sonar-scanner'}\\bin"]) {
+                        bat 'sonar-scanner'
+                    }
                 }
             }
         }
@@ -58,10 +60,10 @@ pipeline {
 
     post {
         success {
-            echo 'Pipeline SUCCESS ✔'
+            echo 'PIPELINE SUCCESS ✔'
         }
         failure {
-            echo 'Pipeline FAILED ❌ Check logs'
+            echo 'PIPELINE FAILED ❌ Check logs'
         }
     }
 }
