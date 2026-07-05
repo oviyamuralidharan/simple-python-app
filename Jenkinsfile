@@ -1,15 +1,15 @@
 pipeline {
     agent any
 
-    environment {
-        DOCKER_IMAGE = "oviyamuralidharan/simple-python-app:latest"
+    tools {
+        sonarRunner 'sonar-scanner'
     }
 
     stages {
 
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/oviyamuralidharan/simple-python-app.git'
+                git 'https://github.com/oviyamuralidharan/simple-python-app.git'
             }
         }
 
@@ -28,44 +28,18 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('sonarserver') {
-                    withEnv([
-                        "SONAR_SCANNER_OPTS=-Dsonar.scanner.skipJreProvisioning=true -Dsonar.scanner.keepReport=false"
-                    ]) {
-                        bat 'sonar-scanner -X'
-                    }
+                    bat 'sonar-scanner -Dsonar.login=%SONAR_TOKEN%'
                 }
-            }
-        }
-
-        stage('Docker Build') {
-            steps {
-                bat 'docker build -t %DOCKER_IMAGE% .'
-            }
-        }
-
-        stage('Docker Push') {
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'docker-token', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
-                    bat 'echo %PASS% | docker login -u %USER% --password-stdin'
-                    bat 'docker push %DOCKER_IMAGE%'
-                }
-            }
-        }
-
-        stage('Deploy') {
-            steps {
-                bat 'docker rm -f simple-python-app || exit 0'
-                bat 'docker run -d --name simple-python-app -p 5000:5000 %DOCKER_IMAGE%'
             }
         }
     }
 
     post {
         success {
-            echo "PIPELINE SUCCESS ✅"
+            echo 'PIPELINE SUCCESS ✅'
         }
         failure {
-            echo "PIPELINE FAILED ❌ Check logs"
+            echo 'PIPELINE FAILED ❌ Check logs'
         }
     }
 }
