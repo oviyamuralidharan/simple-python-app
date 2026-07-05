@@ -28,7 +28,7 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('sonarserver') {
-                    bat 'mvn clean verify sonar:sonar'
+                    bat 'sonar-scanner'
                 }
             }
         }
@@ -53,6 +53,15 @@ pipeline {
                 bat 'docker rm -f simple-python-app || exit 0'
                 bat 'docker run -d --name simple-python-app -p 5000:5000 %IMAGE_NAME%'
             }
+        }
+    }
+
+    post {
+        success {
+            echo 'Pipeline completed successfully!'
+        }
+        failure {
+            echo 'Pipeline failed. Check logs.'
         }
     }
 }
