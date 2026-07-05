@@ -1,11 +1,6 @@
 pipeline {
     agent any
 
-    tools {
-        // Make sure Python is installed on Jenkins machine
-        // If not configured in Jenkins, we are directly calling python path in stages
-    }
-
     environment {
         DOCKER_IMAGE = "oviyamuralidharan/simple-python-app:latest"
     }
@@ -14,7 +9,7 @@ pipeline {
 
         stage('Checkout') {
             steps {
-                git 'https://github.com/oviyamuralidharan/simple-python-app.git'
+                git branch: 'main', url: 'https://github.com/oviyamuralidharan/simple-python-app.git'
             }
         }
 
@@ -34,7 +29,7 @@ pipeline {
             steps {
                 withSonarQubeEnv('sonarserver') {
                     withEnv(["SONAR_SCANNER_OPTS=-Dsonar.scanner.skipJreProvisioning=true"]) {
-                        bat 'sonar-scanner -X'
+                        bat 'sonar-scanner'
                     }
                 }
             }
@@ -42,37 +37,33 @@ pipeline {
 
         stage('Docker Build') {
             steps {
-                bat "docker build -t ${DOCKER_IMAGE} ."
+                bat 'docker build -t %DOCKER_IMAGE% .'
             }
         }
 
         stage('Docker Push') {
             steps {
-                withCredentials([string(credentialsId: 'docker-token', variable: 'DOCKER_PASS')]) {
-                    bat '''
-                        docker login -u oviyamuralidharan -p %DOCKER_PASS%
-                        docker push oviyamuralidharan/simple-python-app:latest
-                    '''
+                withCredentials([usernamePassword(credentialsId: 'docker-token', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
+                    bat 'echo %PASS% | docker login -u %USER% --password-stdin'
+                    bat 'docker push %DOCKER_IMAGE%'
                 }
             }
         }
 
         stage('Deploy') {
             steps {
-                bat '''
-                    docker rm -f simple-python-app || exit 0
-                    docker run -d --name simple-python-app -p 5000:5000 oviyamuralidharan/simple-python-app:latest
-                '''
+                bat 'docker rm -f simple-python-app || exit 0'
+                bat 'docker run -d --name simple-python-app -p 5000:5000 %DOCKER_IMAGE%'
             }
         }
     }
 
     post {
         success {
-            echo 'PIPELINE SUCCESS ✅'
+            echo "PIPELINE SUCCESS ✅"
         }
         failure {
-            echo 'PIPELINE FAILED ❌ Check logs'
+            echo "PIPELINE FAILED ❌ Check logs"
         }
     }
 }
