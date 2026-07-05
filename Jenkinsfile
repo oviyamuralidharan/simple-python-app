@@ -28,7 +28,7 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('sonarserver') {
-                    withEnv(["SONAR_SCANNER_OPTS=-Dsonar.scanner.skipJreProvisioning=true"]) {
+                    withEnv(["PATH+SONAR=${tool 'sonar-scanner'}\\bin"]) {
                         bat 'sonar-scanner'
                     }
                 }
