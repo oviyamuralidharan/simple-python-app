@@ -28,8 +28,10 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('sonarserver') {
-                    withEnv(["PATH+SONAR=${tool 'sonar-scanner'}\\bin"]) {
-                        bat 'sonar-scanner'
+                    withEnv([
+                        "SONAR_SCANNER_OPTS=-Dsonar.scanner.skipJreProvisioning=true -Dsonar.scanner.keepReport=false"
+                    ]) {
+                        bat 'sonar-scanner -X'
                     }
                 }
             }
