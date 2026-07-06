@@ -19,11 +19,7 @@ pipeline {
             steps {
                 withSonarQubeEnv('sonarserver') {
                     withEnv(["PATH+SONAR=C:\\ProgramData\\Jenkins\\.jenkins\\tools\\hudson.plugins.sonar.SonarRunnerInstallation\\sonar-scanner\\bin"]) {
-                        bat '''
-                        sonar-scanner ^
-                        -Dsonar.host.url=http://3.110.203.101 ^
-                        -Dsonar.login=%SONAR_AUTH_TOKEN%
-                        '''
+                        bat 'sonar-scanner'
                     }
                 }
             }
