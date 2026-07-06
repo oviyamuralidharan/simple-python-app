@@ -32,6 +32,8 @@ pipeline {
             }
         }
 
+    }   // ✅ This brace closes the stages block
+
     post {
         success {
             echo "PIPELINE SUCCESS ✅"
