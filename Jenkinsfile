@@ -3,12 +3,6 @@ pipeline {
 
     stages {
 
-        stage('Checkout') {
-            steps {
-                git 'https://github.com/oviyamuralidharan/simple-python-app.git'
-            }
-        }
-
         stage('Build') {
             steps {
                 bat '"C:\\Users\\Oviya\\AppData\\Local\\Programs\\Python\\Python313\\python.exe" -m py_compile app.py'
@@ -24,22 +18,37 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('sonarserver') {
-                    bat '''
-                    sonar-scanner ^
-                    -Dsonar.host.url=http://3.110.203.101
-                    '''
+                    withEnv(["PATH+SONAR=C:\\ProgramData\\Jenkins\\.jenkins\\tools\\hudson.plugins.sonar.SonarRunnerInstallation\\sonar-scanner\\bin"]) {
+                        bat '''
+                        sonar-scanner ^
+                        -Dsonar.host.url=http://3.110.203.101 ^
+                        -Dsonar.login=%SONAR_AUTH_TOKEN%
+                        '''
+                    }
                 }
             }
         }
 
-    }   // ✅ This brace closes the stages block
+        stage('Docker Build') {
+            steps {
+                bat 'docker build -t simple-python-app .'
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                bat 'docker rm -f simple-python-app || exit 0'
+                bat 'docker run -d --name simple-python-app -p 5000:5000 simple-python-app'
+            }
+        }
+    }
 
     post {
         success {
-            echo "PIPELINE SUCCESS ✅"
+            echo 'PIPELINE SUCCESS ✅'
         }
         failure {
-            echo "PIPELINE FAILED ❌ Check logs"
+            echo 'PIPELINE FAILED ❌ Check logs'
         }
     }
 }
