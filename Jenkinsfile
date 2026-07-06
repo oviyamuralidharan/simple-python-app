@@ -24,11 +24,13 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('sonarserver') {
-                    bat 'sonar-scanner'
+                    bat '''
+                    sonar-scanner ^
+                    -Dsonar.host.url=http://3.110.203.101
+                    '''
                 }
             }
         }
-    }
 
     post {
         success {
